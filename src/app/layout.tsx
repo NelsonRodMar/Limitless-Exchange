@@ -48,7 +48,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
               action: {
                 type: 'launch_frame',
                 name: 'Limitless',
-                url: 'nelson-limitless.vercel.app', // TODO Change with true URL
+                url: 'https://nelson-limitless.vercel.app/', // TODO Change with true URL
                 splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
                 splashBackgroundColor: '#000000',
               },

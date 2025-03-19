@@ -42,9 +42,9 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           name='fc:frame'
           content={JSON.stringify({
             version: 'next',
-            imageUrl: '', // TODO:  Set a real image => Image must be 3:2 aspect ratio and less than 10 MB.
+            imageUrl: 'https://nelson-limitless.vercel.app/farcaster-frame.png', // TODO:  Replace image => Image must be 3:2 aspect ratio and less than 10 MB. + Change URL
             button: {
-              title: 'Forecast the futur on Limitless',
+              title: 'Forecast the future on Limitless',
               action: {
                 type: 'launch_frame',
                 name: 'Limitless',

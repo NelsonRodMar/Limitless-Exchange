@@ -38,6 +38,24 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <meta name='google' content='notranslate' />
         <meta name='description' content='Daily prediction markets on Base' />
+        <meta
+          name='fc:frame'
+          content={JSON.stringify({
+            version: 'next',
+            imageUrl: '', // TODO:  Set a real image => Image must be 3:2 aspect ratio and less than 10 MB.
+            button: {
+              title: 'Forecast the futur on Limitless',
+              action: {
+                type: 'launch_frame',
+                name: 'Limitless',
+                url: 'nelson-limitless.vercel.app', // TODO Change with true URL
+                splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
+                splashBackgroundColor: '#000000',
+              },
+            },
+          })}
+          data-rh='true'
+        />
       </head>
       <body>
         <noscript>

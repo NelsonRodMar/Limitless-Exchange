@@ -27,12 +27,23 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
           appearance: {
             theme: mode,
             logo: 'https://limitless-web.vercel.app/assets/images/logo.svg',
+            walletList: ['detected_wallets'],
           },
           defaultChain: defaultChain,
           supportedChains: [baseSepolia, base],
           loginMethods: ['wallet'],
         }
+
+        // Override the isMobile getter to set to true in Frame context
+        Object.defineProperty(rdd, 'isMobile', {
+          get: () => true,
+        })
         setPrivyConfig(config)
+
+        // Hide splash screen after UI renders.
+        setTimeout(() => {
+          FrameSDK.actions.ready()
+        }, 500)
       } else {
         const config: PrivyClientConfig = {
           appearance: {
@@ -56,11 +67,6 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
         }
         setPrivyConfig(config)
       }
-
-      // Hide splash screen after UI renders.
-      setTimeout(() => {
-        FrameSDK.actions.ready()
-      }, 500)
     }
     init()
   }, [])

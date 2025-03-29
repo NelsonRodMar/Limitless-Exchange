@@ -36,6 +36,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           },
         ],
       },
+      other: {
+        'fc:frame': JSON.stringify({
+          version: 'next',
+          imageUrl: `https://limitless.exchange/api/og/market/${params.address}`,
+          button: {
+            title: 'Forecast the future on Limitless',
+            action: {
+              type: 'launch_frame',
+              name: 'Limitless',
+              url: `https://nelson-limitless.vercel.app/market/${params.address}`,
+              splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
+              splashBackgroundColor: '#000000',
+            },
+          },
+        }),
+      },
       // other: frameMetadata,
     }
   } catch (error) {

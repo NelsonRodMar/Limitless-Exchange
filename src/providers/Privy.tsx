@@ -40,10 +40,10 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
           get: () => true,
         })
         setPrivyConfig(config)
-
         // Hide splash screen after UI renders.
         setTimeout(() => {
           FrameSDK.actions.ready()
+          FrameSDK.actions.addFrame()
         }, 500)
       } else {
         const config: PrivyClientConfig = {

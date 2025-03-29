@@ -1,0 +1,18 @@
+{
+    "accountAssociation": {
+      "header": "eyJmaWQiOjYwODMsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgxY0EzOTViMzdiNUNGM0FEZDQwMDVBNkU4OWIxMzEzNDJiRWI3ZEMzIn0",
+      "payload": "eyJkb21haW4iOiJuZWxzb24tbGltaXRsZXNzLnZlcmNlbC5hcHAifQ",
+      "signature": "MHhiZDE5MWYwZGM1ZjVkY2Y2MzczZjUxOTZjMTNlYjc4NDk0NDQ0MWE4MDkwODViZTI1NzE1NGIzODhiY2Y1Y2IzNDc1YjQxY2U2ZTIxZjdiNTNmZjRkNDlmMmVmZTI2M2ExOWUzMDdmM2FjMzM2ZTQ5ZDFkMWY4NjM0NjM4YTY1MTFi"
+    },
+    "frame": {
+      "version": "1",
+      "name": "Limitless (none official)",
+      "iconUrl": "https://limitless.exchange/assets/images/logo.svg",
+      "homeUrl": "https://nelson-limitless.vercel.app",
+      "imageUrl": "https://nelson-limitless.vercel.app/farcaster-frame.png",
+      "buttonTitle": "Forecast the future on Limitless",
+      "splashImageUrl": "https://nelson-limitless.vercel.app/splash.png",
+      "splashBackgroundColor": "#00000",
+      "webhookUrl": "https://nelson-limitless.vercel.app/api/webhook"
+    }
+  }

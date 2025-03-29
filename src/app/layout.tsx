@@ -15,6 +15,22 @@ export const metadata: Metadata = {
     maximumScale: 1,
     userScalable: false,
   },
+  other: {
+    'fc:frame': JSON.stringify({
+      version: 'next',
+      imageUrl: 'https://nelson-limitless.vercel.app/farcaster-frame.png', // TODO:  Replace image => Image must be 3:2 aspect ratio and less than 10 MB. + Change URL
+      button: {
+        title: 'Forecast the future on Limitless',
+        action: {
+          type: 'launch_frame',
+          name: 'Limitless',
+          url: 'https://nelson-limitless.vercel.app/', // TODO Change with true URL
+          splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
+          splashBackgroundColor: '#000000',
+        },
+      },
+    }),
+  },
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
@@ -39,24 +55,6 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <meta name='google' content='notranslate' />
         <meta name='description' content='Daily prediction markets on Base' />
-        <meta
-          name='fc:frame'
-          content={JSON.stringify({
-            version: 'next',
-            imageUrl: 'https://nelson-limitless.vercel.app/farcaster-frame.png', // TODO:  Replace image => Image must be 3:2 aspect ratio and less than 10 MB. + Change URL
-            button: {
-              title: 'Forecast the future on Limitless',
-              action: {
-                type: 'launch_frame',
-                name: 'Limitless',
-                url: 'https://nelson-limitless.vercel.app/', // TODO Change with true URL
-                splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
-                splashBackgroundColor: '#000000',
-              },
-            },
-          })}
-          data-rh='true'
-        />
       </head>
       <body>
         <noscript>

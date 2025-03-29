@@ -42,12 +42,11 @@ export const LineChart = ({ market }: PriceChartProps) => {
     'grey.50',
   ])
 
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
+  const { data: prices } = useMarketPriceHistory(market.slug)
   function getUniqueTimestamps() {
     const timestamps = new Set<number>()
     const now = new Date().getTime()
 
-    // Filter timestamps based on selected time frame
     const cutoffDate = (() => {
       switch (timeFrame) {
         case '1D':
@@ -63,7 +62,6 @@ export const LineChart = ({ market }: PriceChartProps) => {
       }
     })()
 
-    // Use the prices data from the useMarketPriceHistory hook
     if (prices && prices.length > 0) {
       prices.forEach((pricePoint) => {
         // pricePoint is an array where the first element is the timestamp
@@ -125,7 +123,8 @@ export const LineChart = ({ market }: PriceChartProps) => {
               pointRadius: 0,
               pointHoverRadius: 4,
               borderWidth: 2,
-              tension: 0,
+              tension: 0.4,
+              cubicInterpolationMode: 'monotone',
               spanGaps: true,
               segment: {
                 borderColor: (ctx: any) => {
@@ -252,15 +251,19 @@ export const LineChart = ({ market }: PriceChartProps) => {
         border: {
           color: grey300,
         },
+        // Reduce the number of ticks to make the chart smoother
         ticks: {
+          maxRotation: 0,
+          autoSkipPadding: 20,
           color: grey500,
           font: {
             family: 'Inter, sans-serif',
             size: 12,
           },
           autoSkip: true,
-          maxTicksLimit: 8,
+          maxTicksLimit: 6,
         },
+        // This section is now handled in the replacement above
       },
       y: {
         position: 'right',
@@ -321,6 +324,10 @@ export const LineChart = ({ market }: PriceChartProps) => {
           py='2px'
           px={'2px'}
           w={isMobile ? 'full' : 'unset'}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
         >
           {timeRanges.map((range) => (
             <Button
@@ -357,8 +364,16 @@ export const LineChart = ({ market }: PriceChartProps) => {
         </HStack>
       </HStack>
 
-      <Box borderRadius='12px' bg='grey.50' p='8px' height='214px'>
-        <Line data={data} options={options} />
+      <Box borderRadius='12px' bg='grey.50' p='8px' height='214px' width='100%' position='relative'>
+        <Line
+          data={data}
+          options={{
+            ...options,
+            maintainAspectRatio: false,
+            responsive: true,
+          }}
+          style={{ width: '100%', height: '100%', position: 'absolute' }}
+        />
       </Box>
     </VStack>
   )

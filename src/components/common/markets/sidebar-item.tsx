@@ -1,18 +1,15 @@
-import { Text, HStack } from '@chakra-ui/react'
-import Link from 'next/link'
+import { Link, Text, HStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import Crypto from '@/resources/icons/sidebar/crypto.svg'
-import Finance from '@/resources/icons/sidebar/finance.svg'
-import Others from '@/resources/icons/sidebar/others.svg'
-import Pop from '@/resources/icons/sidebar/pop.svg'
-import Sport from '@/resources/icons/sidebar/sport.svg'
-import Weather from '@/resources/icons/sidebar/weather.svg'
+import GrinIcon from '@/resources/icons/grid-icon.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
+import { useCategories } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -21,111 +18,6 @@ export interface SideItemProps {
   color?: string
   onClick: () => void
 }
-
-//ids and names come from api /categories
-export const MARKET_CATEGORIES = {
-  CRYPTO: {
-    id: 2,
-    name: 'Crypto',
-    description: '',
-    icon: null,
-    bannerImage: '/assets/images/banners/crypto.webp',
-  },
-  FINANCIALS: {
-    id: 8,
-    name: 'Financials',
-    description: '',
-    icon: null,
-    bannerImage: '/assets/images/banners/financials.webp',
-  },
-  WEATHER: {
-    id: 9,
-    name: 'Weather',
-    description: '',
-    icon: null,
-    bannerImage: '/assets/images/banners/weather.webp',
-  },
-  SPORTS: {
-    id: 1,
-    name: 'Sports',
-    description: '',
-    icon: null,
-    bannerImage: '/assets/images/banners/sports.webp',
-  },
-  POP: {
-    id: 10,
-    name: 'Pop Culture',
-    description: '',
-    icon: null,
-    bannerImage: '/assets/images/banners/pop.webp',
-  },
-  RECESSION: {
-    id: 11,
-    name: 'Recession',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  STOCKS: {
-    id: 6,
-    name: 'Stocks',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  GOLD: {
-    id: 12,
-    name: 'Gold',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  INFLATION: {
-    id: 13,
-    name: 'Inflation',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  TRADE_WARS: {
-    id: 14,
-    name: 'Trade Wars',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  FOREX: {
-    id: 15,
-    name: 'Forex',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  POLITICS: {
-    id: 3,
-    name: 'Politics',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  SOCIAL: {
-    id: 4,
-    name: 'Social',
-    description: '',
-    icon: null,
-    bannerImage: '',
-  },
-  OTHER: {
-    id: 5,
-    name: 'Other',
-    description: '',
-    bannerImage: '',
-  },
-} as const
-
-export type MarketCategory = (typeof MARKET_CATEGORIES)[keyof typeof MARKET_CATEGORIES]
-
-export const categories = Object.values(MARKET_CATEGORIES)
 
 export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemProps) => {
   return (
@@ -158,22 +50,26 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
   const searchParams = useSearchParams()
 
+  const { data: categories } = useCategories()
   const { data } = useMarkets(null)
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 
   const marketsByCategory = useMemo(() => {
-    if (!markets.length) return {}
+    if (!markets.length || !categories?.length) return {}
 
     const counts: Record<string, number> = {}
     categories.forEach((category) => {
       counts[category.name] = 0
     })
+
+    const otherCategory = categories.find((cat) => cat.name.toLowerCase() === 'other')
+    const otherCategoryName = otherCategory?.name || 'Other'
 
     markets.forEach((market) => {
       if (market.categories && market.categories.length > 0) {
@@ -181,12 +77,12 @@ export const CategoryItems = () => {
           counts[categoryName] = (counts[categoryName] || 0) + 1
         })
       } else {
-        counts[MARKET_CATEGORIES.OTHER.name] = (counts[MARKET_CATEGORIES.OTHER.name] || 0) + 1
+        counts[otherCategoryName] = (counts[otherCategoryName] || 0) + 1
       }
     })
 
     return counts
-  }, [markets])
+  }, [markets, categories])
 
   const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -200,32 +96,70 @@ export const CategoryItems = () => {
   }
 
   const categoriesWithMarkets = useMemo(() => {
-    return categories.filter(
-      (category) => marketsByCategory[category.name] && marketsByCategory[category.name] > 0
+    return (
+      categories?.filter(
+        (category) => marketsByCategory[category.name] && marketsByCategory[category.name] > 0
+      ) || []
     )
-  }, [marketsByCategory])
+  }, [categories, marketsByCategory])
+
   return (
     <>
-      {categoriesWithMarkets.map((c) => (
-        <Link
-          key={c.name}
-          href={`/?${createQueryString(c.name)}`}
-          style={{ width: isMobile ? 'fit-content' : '100%' }}
-        >
-          <SideItem
-            isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
-            // icon={c.icon}
+      <NextLink href={'/'}>
+        <Link variant='transparent' px={0} minW='122px'>
+          <HStack
+            gap='4px'
+            cursor='pointer'
+            bg={!selectedCategory ? 'grey.100' : 'unset'}
             onClick={() => {
-              handleCategory({
-                id: c.id,
-                name: c.name,
-              })
+              handleCategory(undefined)
               handleDashboard(undefined)
             }}
+            px={'8px'}
+            rounded='8px'
           >
-            {c.name} ({marketsByCategory[c.name]})
-          </SideItem>
+            <GrinIcon width={16} height={16} />
+            <Text {...paragraphRegular}>All Markets</Text>
+          </HStack>
         </Link>
+      </NextLink>
+      {isMobile && (
+        <NextLink
+          href={`/?dashboard=marketcrash`}
+          passHref
+          style={{ width: isMobile ? 'fit-content' : '100%' }}
+        >
+          <Link variant='transparent' px={0}>
+            <SideItem
+              isActive={dashboard === 'marketcrash'}
+              icon={<DashboardIcon width={16} height={16} />}
+              onClick={() => {
+                handleDashboard('marketcrash')
+              }}
+              color='orange-500'
+            >
+              Market crash
+            </SideItem>
+          </Link>
+        </NextLink>
+      )}
+      {categoriesWithMarkets.map((category) => (
+        <NextLink key={category.id} href={`/?${createQueryString(category.name)}`}>
+          <Link variant='transparent' px={0}>
+            <SideItem
+              isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
+              onClick={() => {
+                handleCategory({
+                  id: category.id,
+                  name: category.name,
+                })
+                handleDashboard(undefined)
+              }}
+            >
+              {category.name} ({marketsByCategory[category.name]})
+            </SideItem>
+          </Link>
+        </NextLink>
       ))}
     </>
   )

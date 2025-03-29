@@ -5,6 +5,7 @@ import {
   useLogin as usePrivyLogin,
   LoginModalOptions,
 } from '@privy-io/react-auth'
+import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
@@ -49,7 +50,6 @@ import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
@@ -108,9 +108,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
-  console.log(wallets)
-  console.log(user)
-  console.log(web3Wallet)
+  console.log(`user ${user}`)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -124,7 +122,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    setAcc({ account: user?.wallet?.address as string })
+    if (user?.wallet?.address) {
+      setAcc({ account: user.wallet.address as string })
+      spindl.attribute(user.wallet.address)
+    }
   }, [user])
 
   const userMenuLoading = useMemo(() => {
@@ -245,7 +246,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
-
+        spindl.attribute(connectedWallet.address)
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
         setAcc({ account: connectedWallet.address ?? '' })
@@ -316,32 +317,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * FARCASTER
-   */
-  // const { data: farcasterInfo } = useQuery({
-  //   queryKey: ['farcaster', userInfo],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
-  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-  //       {
-  //         headers: {
-  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-  //         },
-  //       }
-  //     )
-  //     const [farcasterUserData] = data.users
-  //     return farcasterUserData
-  //   },
-  //   enabled: userInfo?.typeOfLogin === 'farcaster',
-  // })
-
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet = wallets.find(
-      (wallet) =>
-        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
-        user?.wallet?.walletClientType === wallet.walletClientType
-    )
+    const wallet =
+      web3Client === 'etherspot'
+        ? wallets.find((wallet) => wallet.walletClientType === 'privy')
+        : wallets[0]
+    console.log(`wallets ${wallets}`)
+    console.log(`web3Client ${web3Client}`)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -356,10 +338,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -502,14 +484,4 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
-}
-
-type FarcasterUserData = {
-  fid: number
-  username: string
-  follower_count: number
-}
-
-type FarcasterUsersRequestResponse = {
-  users: FarcasterUserData[]
 }

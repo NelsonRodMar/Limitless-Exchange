@@ -1,30 +1,45 @@
 import { VStack, Text, Box, Flex } from '@chakra-ui/react'
-import { MarketCard } from './market-cards'
+import MarketCard from '@/components/common/markets/market-cards/market-card'
+import MarketCardMobile from './market-cards/market-card-mobile'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
+import { getAnalyticsParams } from '@/utils/market'
 
-export type DashboardGroupType = 'row' | 'grid' | 'featured' | 'compact'
+export enum DashboardGroupType {
+  Mobile = 'mobile',
+  Row = 'row',
+  Grid = 'grid',
+  Featured = 'featured',
+  Compact = 'compact',
+}
 
 interface DashboardGroupProps {
   type: DashboardGroupType
+  marketIndex: number
   categoryName: string
   markets: Market[]
 }
 
-export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupProps) => {
+export const DashboardGroup = ({
+  markets,
+  type,
+  marketIndex,
+  categoryName,
+}: DashboardGroupProps) => {
+  const dashboard = { fromDashboard: 'Market Crash' }
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
-      case 'row':
-        const rowMarkets = markets.slice(0, 2)
+      case DashboardGroupType.Mobile:
         return (
           <VStack gap={4} w='full'>
-            {rowMarkets.map((market, index) => {
+            {markets.map((market, index) => {
               return (
                 <Box key={market.id} width='full'>
-                  <MarketCard
+                  <MarketCardMobile
+                    markets={markets}
                     market={market}
                     variant={index === 0 ? 'chart' : 'row'}
-                    analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                    analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                   />
                 </Box>
               )
@@ -32,7 +47,24 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
           </VStack>
         )
 
-      case 'grid':
+      case DashboardGroupType.Row:
+        return (
+          <VStack gap={4} w='full'>
+            {markets.map((market, index) => {
+              return (
+                <Box key={market.id} width='full'>
+                  <MarketCard
+                    market={market}
+                    variant={index === 0 ? 'chart' : 'row'}
+                    analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
+                  />
+                </Box>
+              )
+            })}
+          </VStack>
+        )
+
+      case DashboardGroupType.Grid:
         return (
           <Flex flexWrap='wrap' gap={4} w='full'>
             {markets.map((gridMarket) => (
@@ -44,25 +76,23 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                 <MarketCard
                   variant='grid'
                   market={gridMarket}
-                  analyticParams={{
-                    bannerPosition: 1,
-                    bannerPaginationPage: 1,
-                  }}
+                  analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                 />
               </Box>
             ))}
           </Flex>
         )
 
-      case 'featured':
-        const featuredMarkets = markets.slice(0, 9)
+      case DashboardGroupType.Featured:
         const rowStructure = [3, 2, 3, 1]
         let currentIndex = 0
         const gapSize = 12
+        const generateFeaturedRows = () => {
+          const allRows = []
 
-        return (
-          <VStack spacing={4} w='full'>
-            {rowStructure.map((columnsInRow, rowIndex) => {
+          while (currentIndex < markets.length) {
+            for (let rowIndex = 0; rowIndex < rowStructure.length; rowIndex++) {
+              const columnsInRow = rowStructure[rowIndex]
               const totalGapWidth = (columnsInRow - 1) * gapSize
 
               const columnWidth =
@@ -80,8 +110,8 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
 
               const rowItems = []
               for (let i = 0; i < columnsInRow; i++) {
-                if (currentIndex < featuredMarkets.length) {
-                  const market = featuredMarkets[currentIndex]
+                if (currentIndex < markets.length) {
+                  const market = markets[currentIndex]
                   rowItems.push(
                     <Box
                       key={market.slug || market.address}
@@ -92,10 +122,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                       <MarketCard
                         variant={getVariant(rowIndex, columnsInRow)}
                         market={market}
-                        analyticParams={{
-                          bannerPosition: currentIndex + 1,
-                          bannerPaginationPage: 1,
-                        }}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                       />
                     </Box>
                   )
@@ -103,42 +130,49 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                 }
               }
 
-              return (
-                <Flex
-                  key={`row-${rowIndex}`}
-                  w='full'
-                  gap={`${gapSize}px`}
-                  justifyContent='space-between'
-                >
-                  {rowItems}
-                </Flex>
-              )
-            })}
+              if (rowItems.length > 0) {
+                allRows.push(
+                  <Flex
+                    key={`row-${allRows.length}`}
+                    w='full'
+                    gap={`${gapSize}px`}
+                    justifyContent='space-between'
+                  >
+                    {rowItems}
+                  </Flex>
+                )
+              }
+
+              if (currentIndex >= markets.length) {
+                break
+              }
+            }
+          }
+          return allRows
+        }
+
+        return (
+          <VStack spacing={4} w='full'>
+            {generateFeaturedRows()}
           </VStack>
         )
 
-      case 'compact':
-        const compactMarkets = markets.slice(0, 5)
+      case DashboardGroupType.Compact:
         const gapSizeCompact = 12
-
-        if (compactMarkets.length === 0) return <></>
 
         return (
           <VStack spacing={4} w='full'>
             <Box width='full'>
               <MarketCard
                 variant='chart'
-                market={compactMarkets[0]}
-                analyticParams={{
-                  bannerPosition: 1,
-                  bannerPaginationPage: 1,
-                }}
+                market={markets[0]}
+                analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
               />
             </Box>
 
-            {compactMarkets.length > 1 && (
+            {markets.length > 1 && (
               <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {compactMarkets.slice(1, 4).map((market, index) => {
+                {markets.slice(1, 4).map((market, index) => {
                   const totalGapWidth = 2 * gapSizeCompact
                   const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
 
@@ -152,10 +186,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                       <MarketCard
                         variant='grid'
                         market={market}
-                        analyticParams={{
-                          bannerPosition: index + 2,
-                          bannerPaginationPage: 1,
-                        }}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                       />
                     </Box>
                   )
@@ -163,17 +194,37 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
               </Flex>
             )}
 
-            {compactMarkets.length > 4 && (
+            {markets.length > 4 && (
               <Box width='full'>
                 <MarketCard
                   variant='row'
-                  market={compactMarkets[4]}
-                  analyticParams={{
-                    bannerPosition: 5,
-                    bannerPaginationPage: 1,
-                  }}
+                  market={markets[4]}
+                  analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                 />
               </Box>
+            )}
+            {markets.length > 5 && (
+              <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
+                {markets.slice(5, markets.length).map((market, index) => {
+                  const totalGapWidth = 2 * gapSizeCompact
+                  const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
+
+                  return (
+                    <Box
+                      key={market.slug || market.address}
+                      width={columnWidth}
+                      flexShrink={0}
+                      flexGrow={0}
+                    >
+                      <MarketCard
+                        variant='grid'
+                        market={market}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
+                      />
+                    </Box>
+                  )
+                })}
+              </Flex>
             )}
           </VStack>
         )

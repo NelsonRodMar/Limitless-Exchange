@@ -45,8 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             action: {
               type: 'launch_frame',
               name: 'Limitless (unofficial)',
-              url: `https://nelson-limitless.vercel.app/markets/${params.address}`,
-              splashImageUrl: 'https://nelson-limitless.vercel.app/assets/images/logo.png',
+              url: `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${params.address}`,
+              splashImageUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}/assets/images/logo.png`,
               splashBackgroundColor: '#000000',
             },
           },

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         title: 'Forecast the future on Limitless',
         action: {
           type: 'launch_frame',
-          name: 'Limitless',
+          name: 'Limitless (unofficial)',
           url: 'https://nelson-limitless.vercel.app/', // TODO Change with true URL
           splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
           splashBackgroundColor: '#000000',

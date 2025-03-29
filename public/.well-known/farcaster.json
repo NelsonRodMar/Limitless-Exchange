@@ -12,7 +12,7 @@
       "imageUrl": "https://nelson-limitless.vercel.app/farcaster-frame.png",
       "buttonTitle": "Forecast the future on Limitless",
       "splashImageUrl": "https://nelson-limitless.vercel.app/splash.png",
-      "splashBackgroundColor": "#00000",
+      "splashBackgroundColor": "#000000",
       "webhookUrl": "https://nelson-limitless.vercel.app/api/webhook"
     }
   }

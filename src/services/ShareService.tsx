@@ -72,12 +72,16 @@ export const createMarketShareUrls = (
     market?.proxyTitle ?? market?.title
   }" by ${creatorName}\nMake your bet on ${marketURI}`
 
+  const farcasterBaseMessage = `"${
+    market?.proxyTitle ?? market?.title
+  }" by ${creatorName}\n ${marketURI}`
+
   const encodedBaseMessage = encodeURI(baseMessage)
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage}`,
     //embeds is a param which gives ability to make pre-screen from market as Image/Link
-    castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
+    castURI: `https://warpcast.com/~/compose?text=${farcasterBaseMessage}&${marketURI}`,
   }
 }
 

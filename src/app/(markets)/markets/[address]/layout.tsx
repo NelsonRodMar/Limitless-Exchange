@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           version: 'next',
           imageUrl: `https://limitless.exchange/api/og/market/${params.address}`,
           button: {
-            title: 'Forecast the future on Limitless',
+            title: 'Make your bet',
             action: {
               type: 'launch_frame',
               name: 'Limitless',

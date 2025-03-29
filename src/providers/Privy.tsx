@@ -3,6 +3,7 @@
 import FrameSDK from '@farcaster/frame-sdk'
 import { PrivyClientConfig, PrivyProvider } from '@privy-io/react-auth'
 import { PropsWithChildren, useEffect, useState } from 'react'
+import * as rdd from 'react-device-detect'
 import { createPublicClient, http } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { defaultChain } from '@/constants'

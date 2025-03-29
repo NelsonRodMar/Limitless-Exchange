@@ -41,12 +41,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           version: 'next',
           imageUrl: `https://limitless.exchange/api/og/market/${params.address}`,
           button: {
-            title: 'Make your bet',
+            title: 'Make your bet on Limitless',
             action: {
               type: 'launch_frame',
               name: 'Limitless (unofficial)',
               url: `https://nelson-limitless.vercel.app/markets/${params.address}`,
-              splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
+              splashImageUrl: 'https://nelson-limitless.vercel.app/assets/images/logo.png',
               splashBackgroundColor: '#000000',
             },
           },

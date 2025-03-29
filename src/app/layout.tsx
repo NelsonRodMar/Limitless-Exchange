@@ -18,14 +18,14 @@ export const metadata: Metadata = {
   other: {
     'fc:frame': JSON.stringify({
       version: 'next',
-      imageUrl: 'https://nelson-limitless.vercel.app/farcaster-frame.png', // TODO:  Replace image => Image must be 3:2 aspect ratio and less than 10 MB. + Change URL
+      imageUrl: 'https://nelson-limitless.vercel.app/assets/images/logo.png', // TODO:  Replace image => Image must be 3:2 aspect ratio and less than 10 MB. + Change URL
       button: {
         title: 'Forecast the future on Limitless',
         action: {
           type: 'launch_frame',
           name: 'Limitless (unofficial)',
           url: 'https://nelson-limitless.vercel.app/', // TODO Change with true URL
-          splashImageUrl: 'https://limitless.exchange/assets/images/logo.svg',
+          splashImageUrl: 'https://nelson-limitless.vercel.app/assets/images/logo.png',
           splashBackgroundColor: '#000000',
         },
       },

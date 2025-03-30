@@ -121,7 +121,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       // Only if in Farcaster Frame context
       if (context?.client.clientFid) {
         // Hide splash screen after UI renders.
-        FrameSDK.actions.ready()
+        setTimeout(() => {
+          FrameSDK.actions.ready()
+        }, 550)
 
         // Override the isMobile getter to set to true in Frame context
         Object.defineProperty(rdd, 'isMobile', {

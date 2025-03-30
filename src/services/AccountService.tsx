@@ -1,3 +1,4 @@
+import FrameSDK from '@farcaster/frame-sdk'
 import {
   ConnectedWallet,
   usePrivy,
@@ -5,6 +6,7 @@ import {
   useLogin as usePrivyLogin,
   LoginModalOptions,
 } from '@privy-io/react-auth'
+import { useLoginToFrame } from '@privy-io/react-auth/farcaster'
 import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
@@ -30,6 +32,7 @@ import React, {
   useState,
   useEffect,
 } from 'react'
+import * as rdd from 'react-device-detect'
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { SignInEvent, useAmplitude } from './Amplitude'
@@ -91,7 +94,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user } = usePrivy()
+  const { logout: disconnect, authenticated, user, ready } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
@@ -104,11 +107,45 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [, setAcc] = useAtom(accountAtom)
   const { handleRedirect } = usePendingTrade()
   const { trackSignIn } = useAmplitude()
+  const { initLoginToFrame, loginToFrame } = useLoginToFrame()
 
   const toast = useToast()
   const router = useRouter()
 
   console.log(`user ${user}`)
+
+  // In Farcaster Frame Context => Autoconnect + Set isMobile to true + all Farcaster thing related
+  useEffect(() => {
+    if (ready && !authenticated) {
+      const login = async () => {
+        const context = await FrameSDK.context
+        // Only if in Farcaster Frame context
+        if (context?.client.clientFid) {
+          // Hide splash screen after UI renders.
+          FrameSDK.actions.ready()
+
+          // Push a screen to add Frame
+          FrameSDK.actions.addFrame()
+
+          // Initialize a new login attempt to get a nonce for the Farcaster wallet to sign
+          const { nonce } = await initLoginToFrame()
+          // Request a signature from Warpcast
+          const result = await FrameSDK.actions.signIn({ nonce: nonce })
+          // Send the received signature from Warpcast to Privy for authentication
+          await loginToFrame({
+            message: result.message,
+            signature: result.signature,
+          })
+
+          // Override the isMobile getter to set to true in Frame context
+          Object.defineProperty(rdd, 'isMobile', {
+            get: () => true,
+          })
+        }
+      }
+      login()
+    }
+  }, [ready, authenticated])
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],

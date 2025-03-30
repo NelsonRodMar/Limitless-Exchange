@@ -1,7 +1,8 @@
 'use client'
 
 import FrameSDK from '@farcaster/frame-sdk'
-import { PrivyClientConfig, PrivyProvider } from '@privy-io/react-auth'
+import { PrivyClientConfig, PrivyProvider, usePrivy } from '@privy-io/react-auth'
+import { useLoginToFrame } from '@privy-io/react-auth/farcaster'
 import { PropsWithChildren, useEffect, useState } from 'react'
 import * as rdd from 'react-device-detect'
 import { createPublicClient, http } from 'viem'
@@ -17,6 +18,8 @@ export const publicClient = createPublicClient({
 
 export default function PrivyAuthProvider({ children }: PropsWithChildren) {
   const { mode } = useThemeProvider()
+  const { ready, authenticated } = usePrivy()
+  const { initLoginToFrame, loginToFrame } = useLoginToFrame()
   const [privyConfig, setPrivyConfig] = useState<PrivyClientConfig>()
 
   useEffect(() => {
@@ -40,9 +43,26 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
           get: () => true,
         })
         setPrivyConfig(config)
-        // Hide splash screen after UI renders.
+
+        // Autoconnect user to Frame
+        if (ready && !authenticated) {
+          const login = async () => {
+            // Initialize a new login attempt to get a nonce for the Farcaster wallet to sign
+            const { nonce } = await initLoginToFrame()
+            // Request a signature from Warpcast
+            const result = await FrameSDK.actions.signIn({ nonce: nonce })
+            // Send the received signature from Warpcast to Privy for authentication
+            await loginToFrame({
+              message: result.message,
+              signature: result.signature,
+            })
+          }
+          login()
+        }
         setTimeout(() => {
+          // Hide splash screen after UI renders.
           FrameSDK.actions.ready()
+          // Push a screen to add Frame
           FrameSDK.actions.addFrame()
         }, 500)
       } else {
@@ -70,7 +90,7 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
       }
     }
     init()
-  }, [])
+  }, [ready, authenticated])
   return (
     <PrivyProvider appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string} config={privyConfig}>
       <QueryProvider>

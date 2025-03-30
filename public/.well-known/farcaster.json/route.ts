@@ -1,6 +1,4 @@
-export async function GET() {
-    const appUrl = process.env.NEXT_PUBLIC_FRAME_URL;
-  
+export async function GET() { 
     const config = {
       accountAssociation: {
         header:
@@ -12,13 +10,13 @@ export async function GET() {
       frame: {
         version: "1",
         name: "Limitless (unofficial)",
-        iconUrl: `${appUrl}/assets/images/logo.png`,
-        homeUrl: `${appUrl}`,
-        imageUrl: `${appUrl}/farcaster-frame.png`,
-        buttonTitle: "Yoink with an embedded wallet!",
-        splashImageUrl: `${appUrl}/assets/images/logo.png`,
+        iconUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}/assets/images/logo.png`,
+        homeUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}`,
+        imageUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}/farcaster-frame.png`,
+        buttonTitle: "Make your bet  on Limitless",
+        splashImageUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}/assets/images/logo.png`,
         splashBackgroundColor: "#000000",
-        webhookUrl: `${appUrl}/api/webhook`
+        webhookUrl: `${process.env.NEXT_PUBLIC_FRAME_URL}/api/webhook`
       },
     };
   

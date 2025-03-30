@@ -114,8 +114,22 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   console.log(`user ${user}`)
 
-  // In Farcaster Frame Context => Autoconnect + Set isMobile to true + all Farcaster thing related
+  // In Farcaster Frame Context => Autoconnect + Set isMobile to true + all Farcaster thing relateed
   useEffect(() => {
+    const login = async () => {
+      const context = await FrameSDK.context
+      // Only if in Farcaster Frame context
+      if (context?.client.clientFid) {
+        // Hide splash screen after UI renders.
+        FrameSDK.actions.ready()
+
+        // Override the isMobile getter to set to true in Frame context
+        Object.defineProperty(rdd, 'isMobile', {
+          get: () => true,
+        })
+      }
+    }
+    login()
     if (ready && !authenticated) {
       const login = async () => {
         const context = await FrameSDK.context

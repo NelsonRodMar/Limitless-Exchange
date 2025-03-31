@@ -37,18 +37,7 @@ module.exports = withBundleAnalyzer({
       },
     ]
   },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    })
-
-    return config
-  },
-})
-
-//TODO Revert this added to test on nelson-vercel
-module.exports = {
+  //TODO Revert this added to test on nelson-vercel
   async headers() {
     return [
       {
@@ -67,4 +56,12 @@ module.exports = {
       },
     ]
   },
-}
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    })
+
+    return config
+  },
+})

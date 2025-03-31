@@ -41,8 +41,8 @@ module.exports = withBundleAnalyzer({
   async headers() {
     return [
       {
-        // matching all API routes
-        source: '*',
+        // matching all routes
+        source: '/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },

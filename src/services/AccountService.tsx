@@ -123,7 +123,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         // Hide splash screen after UI renders.
         setTimeout(() => {
           FrameSDK.actions.ready()
-        }, 550)
+        }, 650)
 
         // Override the isMobile getter to set to true in Frame context
         Object.defineProperty(rdd, 'isMobile', {

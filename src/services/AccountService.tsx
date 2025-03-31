@@ -120,6 +120,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       const context = await FrameSDK.context
       // Only if in Farcaster Frame context
       if (context?.client.clientFid) {
+        // Push a screen to add Frame
+        FrameSDK.actions.addFrame()
+
         // Hide splash screen after UI renders.
         setTimeout(() => {
           FrameSDK.actions.ready()
@@ -129,20 +132,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         Object.defineProperty(rdd, 'isMobile', {
           get: () => true,
         })
-      }
-    }
-    login()
-    if (ready && !authenticated) {
-      const login = async () => {
-        const context = await FrameSDK.context
-        // Only if in Farcaster Frame context
-        if (context?.client.clientFid) {
-          // Hide splash screen after UI renders.
-          FrameSDK.actions.ready()
 
-          // Push a screen to add Frame
-          FrameSDK.actions.addFrame()
-
+        // Autoconnect user if not connected
+        if (ready && !authenticated) {
           // Initialize a new login attempt to get a nonce for the Farcaster wallet to sign
           const { nonce } = await initLoginToFrame()
           // Request a signature from Warpcast
@@ -152,15 +144,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             message: result.message,
             signature: result.signature,
           })
-
-          // Override the isMobile getter to set to true in Frame context
-          Object.defineProperty(rdd, 'isMobile', {
-            get: () => true,
-          })
         }
       }
-      login()
     }
+    login()
   }, [ready, authenticated])
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
